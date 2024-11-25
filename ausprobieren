@@ -1,0 +1,11 @@
+import streamlit as st
+from countryinfo import CountryInfo
+import random
+
+countries = list(CountryInfo().info().keys())
+
+# Zufälliges Land auswählen
+random_country = random.choice(countries)
+
+# Ausgabe des zufälligen Landes
+print(random_country)

@@ -1,0 +1,218 @@
+
+#lucias code
+import streamlit as st
+import time
+import pandas as pd
+import numpy as np
+
+#read csv file of countries  
+df = pd.read_csv("countries.csv")
+
+#design of game
+st.title("Guessing Game")
+st.markdown("Welcome to your guessing game!! Please guess a country")
+
+#create session 
+if 'goal' not in st.session_state:
+    st.session_state.goal = df.sample(1)["name"] #random.randint(0,100)
+
+if 'counter' not in st.session_state:
+    st.session_state.counter = 0
+
+if 'diabled' not in st.session_state:
+    st.session_state.disabled = False
+
+if 'tx' not in st.session_state: 
+    st.session_state.tx = ""
+
+def submit():
+    st.session_state.tx = st.session_state.widget
+    st.session_state.widget = ""
+
+#input user
+st.text_input(label = "Type in a country", key = "widget", on_change = submit)
+guess = st.session_state.tx
+st.write("You guessed the country:", guess)
+
+#button is clicked -> session gets reset
+if st.button("Restart"):
+    st.session_state.goal = df.sample(1)["name"]
+    st.session_state.counter = 0
+    guess = ""
+
+
+#put session_state in variable
+country = st.session_state.goal.item()
+st.write(country) #kontrolle test
+
+
+#get index of row of country info
+num = df[df["name"] == country].index[0]
+#put columns needed in variables (lists)
+capital = df["capital"]         #3
+region = df["region"]           #1
+subregion = df["subregion"]     #2
+code = df["iso3"]               #5
+currency = df["currency"]       #4
+
+#check if input matches random country (including different uppercase letters)
+st.write(num)
+if guess == "":
+    st.write("nix") #change this
+elif country.lower() == guess.lower(): 
+    st.write("CONGRATULATIONS!!! You guessed the correct country! It was: ", st.session_state.goal.item())
+    st.balloons() 
+    st.session_state.disabled = True #doesnt work
+elif country.lower() != guess.lower(): 
+    st.session_state.counter += 1 
+      
+
+st.write("count:", st.session_state.counter)
+
+'''
+**Hints**
+'''
+#works but make prettier
+if st.session_state.counter >= 1:
+    st.write("1) The country is on this continent:", region[num])
+if st.session_state.counter >= 2:
+    st.write("2) More specifically: ", subregion[num])
+if st.session_state.counter >= 3:
+    st.write("3)", capital[num], "is the capital of this country.")
+if st.session_state.counter >= 4:
+    st.write("4) Maybe this will help: in the country, people are paying with", currency[num])
+if st.session_state.counter >= 5:
+    st.write("5) Last tip: in short, the code for the wanted country is ", code[num])
+
+
+
+
+
+### machen: 
+## groß kleinschreibung plus klammern etc
+## hints wenn es falsch ist
+## stats restart wieder auf 0
+## button to play again (or generate a new country (after 10 guesses??))
+## wenn guess richtig --> no more guessing input
+# bold or something the hint input
+# chat ???
+# on_change (definition before --> success session state. if true -> change widget) else do program 
+# check if input is str and check if it is a country of the list
+
+#neuer Anfang Chatbot
+import streamlit as st
+import random
+import pandas as pd
+
+# Lade CSV-Datei
+data = pd.read_csv("countries.csv")
+
+st.title("Capital Guessing Game")
+if st.button("Guess a capital city"):
+    with st.chat_message(name='assistant'):
+        st.write("Hello!")
+        st.write(f"Great! What is the capital of {st.session_state.random_country}?"
+
+
+#Chat gpt chatbot
+
+# st.session_state für zufälliges Land und Feedback
+if "random_country" not in st.session_state:
+    st.session_state.random_country = None
+if "number" not in st.session_state:
+    st.session_state.number = None
+if "feedback" not in st.session_state:
+    st.session_state.feedback = ""
+
+# Initialisiere den Chat
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Titel der Seite
+st.title("Capital Guessing Game")
+
+# Zeige alle bisherigen Nachrichten im Chat
+for msg in st.session_state.messages:
+    st.chat_message(msg["role"]).markdown(msg["content"])
+
+# Handle Benutzerinput
+user_input = st.chat_input("Type 'Guess a capital' to start")
+
+# Wenn der Benutzer "Guess a capital" eingibt
+if user_input and user_input.strip().lower() == "guess a capital":
+    # Zufälliges Land auswählen
+    st.session_state.number = random.randint(1, 247)
+    st.session_state.random_country = data.loc[st.session_state.number, "name"]
+    st.session_state.correct_capital = data.loc[st.session_state.number, "capital"]
+    
+    # Zeige im Chat die Frage an
+    st.session_state.messages.append({
+        "role": "assistant", 
+        "content": f"Great! What is the capital of {st.session_state.random_country}?"
+    })
+
+# Handle die Antwort des Benutzers
+if user_input and st.session_state.random_country is not None:
+    if user_input.strip().lower() == st.session_state.correct_capital.strip().lower():
+        st.session_state.feedback = f"✅ Correct! The capital of {st.session_state.random_country} is {st.session_state.correct_capital}."
+    else:
+        st.session_state.feedback = f"❌ Wrong! The capital of {st.session_state.random_country} is {st.session_state.correct_capital}."
+    
+    # Zeige die Rückmeldung im Chat an
+    st.session_state.messages.append({"role": "assistant", "content": st.session_state.feedback})
+    
+    # Fordere den Benutzer zu einer neuen Frage auf
+    st.session_state.messages.append({
+        "role": "assistant", 
+        "content": "Type 'Guess a capital' to try again."
+    })
+
+
+
+
+import streamlit as st
+import random
+import pandas as pd
+#, key="user_input"
+# load csv file
+data = pd.read_csv("countries.csv")
+
+# st.session_states for random country and the feedback
+if "random_country" not in st.session_state:
+    st.session_state.random_country = None
+if "number" not in st.session_state:
+    st.session_state.number = None
+if "feedback" not in st.session_state:
+    st.session_state.feedback = ""
+
+# Title
+st.title("Capital Guessing Game")
+
+# Select random country after clicking button
+if st.button("Guess a capital"):
+    st.session_state.number = random.randint(1, 247)
+    st.session_state.random_country = data.loc[st.session_state.number, "name"]
+    st.session_state.correct_capital= data.koc[st.session_state.number, "capital"]
+    st.session_state.feedback = ""  # Feedback zurücksetzen
+
+# Frage und Antwort
+#if st.session_state.random_country is not None:
+    #country_name = st.session_state.random_country["name"]
+    #correct_capital = st.session_state.random_country["capital"]
+
+    user_input = st.text_input(f"What is the capital city of {st.session_state.random_country}?", key="user_input")
+
+    if st.button("Submit"):
+        if user_input.strip().lower() == st.session_state.correct_capital.strip().lower():
+            st.session_state.feedback = f"✅ Correct! The capital of {st.session_state.random_country} is {st.session_state.correct_capital}."
+        else:
+            st.session_state.feedback = f"❌ Wrong! The capital of {st.session_state.random_country} is {st.session_state.correct_capital}."
+
+# shows Feedback
+if st.session_state.feedback:
+    st.write(st.session_state.feedback)
+    if st.button("New country"): #Problem: muss man zweimal drücken
+        st.session_state.number = random.randint(1, 247)
+        st.session_state.random_country = data.loc[st.session_state.number, "name"]
+        st.session_state.feedback = "" 
+    
